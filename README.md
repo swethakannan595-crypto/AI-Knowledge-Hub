@@ -83,18 +83,8 @@ LayerTechnologyBackend FrameworkFastAPI (Python 3.11+)DatabasePostgreSQL + SQLAl
 
 🏗️ Architecture
 
-┌─────────────┐      ┌──────────────┐      ┌─────────────────┐
-│   Browser   │ ───▶ │   FastAPI    │ ───▶ │   PostgreSQL     │
-│  (Vanilla   │      │   Backend    │      │  (Users, Docs)   │
-│   JS UI)    │ ◀─── │              │ ◀─── │                  │
-└─────────────┘      └──────┬───────┘      └─────────────────┘
-                             │
-                ┌────────────┼────────────┐
-                ▼                         ▼
-       ┌─────────────────┐      ┌──────────────────┐
-       │    ChromaDB     │      │   Groq API       │
-       │  (Vector Store) │      │  (Llama 3.1 LLM) │
-       └─────────────────┘      └──────────────────┘
+<img width="318" height="186" alt="image" src="https://github.com/user-attachments/assets/bce66235-c785-4818-9786-a98de5a0cef8" />
+
 
 RAG Flow: PDF upload → text extraction → chunking → embedding → ChromaDB storage → on query, semantic search retrieves relevant chunks → chunks + question sent to Llama 3.1 → grounded answer returned.
 
@@ -145,27 +135,8 @@ Visit http://127.0.0.1:8000 to access the app, or http://127.0.0.1:8000/docs for
 
 📁 Project Structure
 
-ai-knowledge-hub/
-├── app/
-│   ├── main.py                 # FastAPI app entrypoint
-│   ├── api/
-│   │   ├── users.py            # Auth: register, login, user CRUD
-│   │   ├── chat.py             # RAG chat endpoint
-│   │   └── files.py            # PDF upload + document listing
-│   ├── models/
-│   │   ├── user.py             # User ORM model
-│   │   └── document.py         # Document ORM model
-│   ├── services/
-│   │   ├── auth.py             # JWT + password hashing
-│   │   └── rag.py              # PDF parsing, embeddings, vector search
-│   ├── db/
-│   │   └── database.py         # SQLAlchemy engine/session
-│   ├── templates/
-│   │   └── index.html          # Frontend SPA
-│   └── chroma_db/               # Persisted vector store
-├── requirements.txt
-├── .env
-└── README.md
+<img width="307" height="260" alt="image" src="https://github.com/user-attachments/assets/3c8e7e8a-efa0-4b00-8d54-801f8037b060" />
+
 
 
 🔑 API Endpoints
