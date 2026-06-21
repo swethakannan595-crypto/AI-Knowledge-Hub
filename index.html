@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index — AI Knowledge Hub</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #faf9fc;
+            --surface: #ffffff;
+            --border: #ece8f2;
+            --ink: #1d1730;
+            --ink-soft: #5d5570;
+            --ink-faint: #9890a8;
+            --accent: #c2127d;
+            --accent-soft: #fce8f4;
+            --accent-deep: #8c1463;
+            --purple: #7650c3;
+            --purple-soft: #f1eafb;
+            --green: #1f9d6c;
+            --green-soft: #e7f8f0;
+            --amber: #b5790a;
+            --amber-soft: #fdf3e0;
+            --radius: 14px;
+            --shadow-sm: 0 1px 2px rgba(29,23,48,0.04), 0 1px 1px rgba(29,23,48,0.03);
+            --shadow-md: 0 4px 14px rgba(29,23,48,0.06);
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== TOAST ===== */
+        .toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+            pointer-events: auto; min-width: 260px; max-width: 380px;
+            box-shadow: 0 8px 30px rgba(29,23,48,0.15);
+            animation: toastIn 0.35s cubic-bezier(0.16,1,0.3,1);
+            border: 1px solid transparent; line-height: 1.5;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .toast.leaving { animation: toastOut 0.25s ease forwards; }
+        .toast-success { background: var(--green-soft); color: var(--green); border-color: #c9ecdc; }
+        .toast-error { background: #fdeaea; color: #c23434; border-color: #f6cccc; }
+        .toast-info { background: var(--purple-soft); color: var(--purple); border-color: #e2d4f7; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+        @keyframes toastOut { to { opacity: 0; transform: translateX(40px); } }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+        }
+
+        .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding: 0 6px; }
+        .logo-mark {
+            width: 34px; height: 34px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; flex-shrink: 0;
+        }
+        .logo-text { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--ink); }
+        .logo-sub { font-size: 11.5px; color: var(--ink-faint); margin: 2px 0 28px 6px; }
+
+        .nav-label {
+            font-size: 10.5px; color: var(--ink-faint); text-transform: uppercase;
+            letter-spacing: 0.8px; font-weight: 700; margin: 6px 6px 8px;
+        }
+
+        .menu button {
+            width: 100%; margin: 2px 0; padding: 10px 12px; border: none; border-radius: 10px;
+            cursor: pointer; background: transparent; color: var(--ink-soft);
+            font-size: 14px; font-weight: 500; text-align: left; transition: all 0.15s;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .menu button .ic { font-size: 16px; width: 20px; text-align: center; }
+        .menu button:hover { background: var(--accent-soft); color: var(--accent-deep); }
+        .menu button.active-btn { background: var(--accent-soft); color: var(--accent-deep); font-weight: 700; }
+
+        .sidebar-footer {
+            margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border);
+            font-size: 11.5px; color: var(--ink-faint); line-height: 1.6; padding-left: 6px;
+        }
+        .sidebar-footer b { color: var(--ink-soft); }
+
+        /* ===== MAIN ===== */
+        .main { flex: 1; padding: 36px 40px; overflow-y: auto; max-width: 1280px; }
+
+        .page-title { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 5px; }
+        .page-subtitle { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 30px; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeUp 0.35s ease; }
+        @keyframes fadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--surface); padding: 24px; border-radius: var(--radius);
+            margin-bottom: 22px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .card h3 { font-size: 15.5px; font-weight: 700; margin-bottom: 16px; color: var(--ink); }
+        .card h3 .float-btn { float: right; }
+
+        /* ===== STAT GRID ===== */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 20px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .stat-card.s-pink::before { background: var(--accent); }
+        .stat-card.s-purple::before { background: var(--purple); }
+        .stat-card.s-green::before { background: var(--green); }
+        .stat-card.s-amber::before { background: var(--amber); }
+
+        .stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .stat-icon {
+            width: 38px; height: 38px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; font-size: 17px;
+        }
+        .s-pink .stat-icon { background: var(--accent-soft); }
+        .s-purple .stat-icon { background: var(--purple-soft); }
+        .s-green .stat-icon { background: var(--green-soft); }
+        .s-amber .stat-icon { background: var(--amber-soft); }
+
+        .stat-pill {
+            font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .s-pink .stat-pill { background: var(--accent-soft); color: var(--accent-deep); }
+        .s-purple .stat-pill { background: var(--purple-soft); color: var(--purple); }
+        .s-green .stat-pill { background: var(--green-soft); color: var(--green); }
+        .s-amber .stat-pill { background: var(--amber-soft); color: var(--amber); }
+
+        .stat-number { font-size: 30px; font-weight: 800; letter-spacing: -1px; color: var(--ink); }
+        .stat-label { font-size: 12px; color: var(--ink-faint); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
+
+        /* ===== FEATURE GRID ===== */
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 22px; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;
+            cursor: default;
+        }
+        .feature-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .feature-icon {
+            width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center;
+            justify-content: center; font-size: 18px; margin-bottom: 14px;
+        }
+        .feature-card:nth-child(1) .feature-icon { background: var(--accent-soft); }
+        .feature-card:nth-child(2) .feature-icon { background: var(--purple-soft); }
+        .feature-card:nth-child(3) .feature-icon { background: var(--green-soft); }
+        .feature-card:nth-child(4) .feature-icon { background: var(--amber-soft); }
+        .feature-card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .feature-card p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; }
+
+        /* ===== FORM ELEMENTS ===== */
+        label { font-size: 12.5px; color: var(--ink-soft); display: block; margin-bottom: 6px; font-weight: 600; }
+
+        input[type="text"], input[type="email"], input[type="password"], textarea, select {
+            width: 100%; padding: 11px 14px; margin-bottom: 14px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            background: var(--bg); color: var(--ink); font-size: 14px;
+            outline: none; transition: border 0.15s; font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--surface); }
+        select option { background: var(--surface); }
+
+        input[type="file"] {
+            width: 100%; padding: 13px; margin-bottom: 14px;
+            border: 1.5px dashed var(--border); border-radius: 10px;
+            background: var(--bg); color: var(--ink-soft); cursor: pointer; font-size: 13.5px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 13.5px; font-weight: 700; transition: all 0.15s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: var(--accent-deep); }
+        .btn-danger { background: #fdeaea; color: #c23434; border: 1px solid #f6cccc; }
+        .btn-danger:hover { background: #fbdada; }
+        .btn-secondary { background: var(--bg); color: var(--ink-soft); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--accent-soft); color: var(--accent-deep); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-full { width: 100%; }
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* ===== MESSAGES ===== */
+        .msg { padding: 11px 14px; border-radius: 10px; font-size: 13px; margin-top: 12px; display: none; font-weight: 500; }
+        .msg.success { background: var(--green-soft); color: var(--green); border: 1px solid #c9ecdc; display: block; }
+        .msg.error { background: #fdeaea; color: #c23434; border: 1px solid #f6cccc; display: block; }
+        .msg.info { background: var(--purple-soft); color: var(--purple); border: 1px solid #e2d4f7; display: block; }
+
+        /* ===== TABLE ===== */
+        table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        th {
+            padding: 10px 14px; background: var(--bg); color: var(--ink-faint); text-align: left;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+            border-bottom: 1.5px solid var(--border);
+        }
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--ink-soft); }
+        tr:hover td { background: var(--bg); }
+        tr:last-child td { border-bottom: none; }
+
+        /* ===== CHAT ===== */
+        .chat-container { display: flex; flex-direction: column; height: 64vh; }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 18px; background: var(--bg);
+            border-radius: var(--radius); margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;
+            border: 1px solid var(--border);
+        }
+        .chat-messages::-webkit-scrollbar { width: 5px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .message { max-width: 78%; padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; animation: fadeUp 0.25s ease; }
+
+        .message.user {
+            background: var(--accent); color: #fff; align-self: flex-end;
+            border-bottom-right-radius: 4px; font-weight: 500;
+        }
+        .message.ai {
+            background: var(--surface); color: var(--ink); align-self: flex-start;
+            border-bottom-left-radius: 4px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .message.ai .msg-label { font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+        .message.typing { background: var(--surface); align-self: flex-start; padding: 16px; border: 1px solid var(--border); }
+
+        .typing-dots span { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin: 0 2px; animation: bounce 1.2s infinite; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+
+        .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+        .chat-input-row textarea { flex: 1; margin: 0; resize: none; height: 48px; padding-top: 13px; }
+
+        .quick-questions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .quick-btn {
+            padding: 7px 14px; background: var(--accent-soft); border: 1px solid #f6d4e8;
+            border-radius: 20px; color: var(--accent-deep); font-size: 12.5px; font-weight: 600;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .quick-btn:hover { background: #f8d2e9; }
+
+        .spinner {
+            display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .badge-blue { background: var(--purple-soft); color: var(--purple); }
+        .badge-green { background: var(--green-soft); color: var(--green); }
+
+        .search-result-item {
+            padding: 9px 12px; background: var(--bg); border-radius: 8px; margin-bottom: 5px; font-size: 13px; border: 1px solid var(--border);
+        }
+        .search-result-label { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-top: 12px; margin-bottom: 6px; }
+
+        .empty-cell { text-align: center; color: var(--ink-faint); padding: 24px 14px; }
+
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 780px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; min-height: auto; position: relative; }
+            .main { padding: 24px 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="sidebar">
+    <div class="logo-row">
+        <div class="logo-mark">🧠</div>
+        <div class="logo-text">Index</div>
+    </div>
+    <div class="logo-sub">AI Knowledge Hub</div>
+
+    <div class="nav-label">Navigation</div>
+    <div class="menu">
+        <button onclick="showSection('dashboard')" id="btn-dashboard" class="active-btn"><span class="ic">📊</span>Dashboard</button>
+        <button onclick="showSection('chat')" id="btn-chat"><span class="ic">💬</span>AI Chat</button>
+        <button onclick="showSection('upload')" id="btn-upload"><span class="ic">📁</span>Documents</button>
+        <button onclick="showSection('users')" id="btn-users"><span class="ic">👥</span>Users</button>
+        <button onclick="showSection('profile')" id="btn-profile"><span class="ic">🙍</span>My Profile</button>
+    </div>
+
+    <div class="sidebar-footer">
+        <b>Index v1.0</b><br>
+        FastAPI + RAG + Mistral AI
+    </div>
+</div>
+
+<div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="dashboard" class="section active">
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Overview of your knowledge system</div>
+
+        <div class="card">
+            <h3>🔍 Search</h3>
+            <input type="text" id="searchInput" placeholder="Search documents or users..." oninput="liveSearch()">
+            <div id="searchResults"></div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card s-pink">
+                <div class="stat-top">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-pill">~ Active</div>
+                </div>
+                <div class="stat-number" id="stat-users">0</div>
+                <div class="stat-label">Users</div>
+            </div>
+            <div class="stat-card s-purple">
+                <div class="stat-top">
+                    <div class="stat-icon">📄</div>
+                    <div class="stat-pill">~ Indexed</div>
+                </div>
+                <div class="stat-number" id="stat-docs">0</div>
+                <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card s-green">
+                <div class="stat-top">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-pill">Today</div>
+                </div>
+                <div class="stat-number" id="stat-chats">0</div>
+                <div class="stat-label">Chats</div>
+            </div>
+            <div class="stat-card s-amber">
+                <div class="stat-top">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-pill">~ Fast</div>
+                </div>
+                <div class="stat-number">&lt;2s</div>
+                <div class="stat-label">Avg Response</div>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card" onclick="showSection('chat')" style="cursor:pointer">
+                <div class="feature-icon">💬</div>
+                <h4>AI-Powered Q&A</h4>
+                <p>Ask questions in natural language. Answers are grounded in your documents using retrieval-augmented generation.</p>
+            </div>
+            <div class="feature-card" onclick="showSection('upload')" style="cursor:pointer">
+                <div class="feature-icon">📤</div>
+                <h4>Smart Document Indexing</h4>
+                <p>Upload PDFs and they're automatically chunked, embedded, and stored for instant semantic search.</p>
+            </div>
+            <div class="feature-card" onclick="showSection('users')" style="cursor:pointer">
+                <div class="feature-icon">🔒</div>
+                <h4>Secure Access Control</h4>
+                <p>Manage users with role-based access. Every action is tracked and authenticated with JWT tokens.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h4>Fast Inference</h4>
+                <p>Powered by Mistral 7B — get quick token generation for responsive, fluid conversations.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Quick Actions</h3>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="showSection('chat')">Start AI Chat</button>
+                <button class="btn btn-secondary" onclick="showSection('upload')">Upload Document</button>
+                <button class="btn btn-secondary" onclick="showSection('users')">Manage Users</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>System Status</h3>
+            <table>
+                <tr><td>Backend</td><td><span class="badge badge-green" id="statusBackend">● Checking...</span></td></tr>
+                <tr><td>Database</td><td><span class="badge badge-green" id="statusDb">● Checking...</span></td></tr>
+                <tr><td>AI Model</td><td><span class="badge badge-blue">Mistral 7B (free)</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="chat" class="section">
+        <div class="page-title">AI Chat</div>
+        <div class="page-subtitle">Ask anything — answers use your uploaded documents</div>
+
+        <div class="card">
+            <div class="quick-questions">
+                <span class="quick-btn" onclick="quickAsk('Summarize the uploaded documents')">📄 Summarize docs</span>
+                <span class="quick-btn" onclick="quickAsk('What are the key topics in my documents?')">🔍 Key topics</span>
+                <span class="quick-btn" onclick="quickAsk('Give me a professional summary report')">📊 Summary report</span>
+                <span class="quick-btn" onclick="quickAsk('What questions should I ask about this content?')">💡 Suggest questions</span>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="msg-label">🧠 AI Assistant</div>
+                        Hello! Upload a document, then ask me anything about it — I can summarize, find key topics, or answer specific questions.
+                    </div>
+                </div>
+
+                <div class="chat-input-row">
+                    <textarea id="chatInput" placeholder="Ask a question..." onkeydown="handleChatKey(event)"></textarea>
+                    <button class="btn btn-primary" onclick="sendMessage()" id="sendBtn">Send</button>
+                    <button class="btn btn-secondary" onclick="clearChat()" title="Clear chat">🗑️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCUMENTS / UPLOAD -->
+    <div id="upload" class="section">
+        <div class="page-title">Documents</div>
+        <div class="page-subtitle">Upload and manage your knowledge base files</div>
+
+        <div class="card">
+            <h3>Upload New Document</h3>
+            <label>Select File (PDF)</label>
+            <input type="file" id="fileInput" accept=".pdf">
+            <button class="btn btn-primary btn-full" onclick="uploadFile()" id="uploadBtn">📤 Upload File</button>
+            <div class="msg info" id="uploadMsg">Select a file and click Upload.</div>
+        </div>
+
+        <div class="card">
+            <h3>📚 Uploaded Documents
+                <button class="btn btn-secondary btn-sm" style="float:right" onclick="loadDocuments()">🔄 Refresh</button>
+            </h3>
+            <table>
+                <thead><tr><th>Filename</th><th>Action</th></tr></thead>
+                <tbody id="docsTable">
+                    <tr><td colspan="2" class="empty-cell">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="users" class="section">
+        <div class="page-title">User Management</div>
+        <div class="page-subtitle">Manage system users</div>
+
+        <div class="card">
+            <h3>Add New User</h3>
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="Enter email">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Min 8 chars, 1 uppercase, 1 number">
+            <button class="btn btn-primary btn-full" onclick="createUser()" id="createBtn">Add User</button>
+            <div class="msg" id="createMsg"></div>
+        </div>
+
+        <div class="card">
+            <h3>All Users
+                <button class="btn btn-secondary btn-sm" style="float:right" onclick="getUsers()">🔄 Refresh</button>
+            </h3>
+            <table>
+                <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody id="usersTable">
+                    <tr><td colspan="5" class="empty-cell">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="profile" class="section">
+        <div class="page-title">My Profile</div>
+        <div class="page-subtitle">Your account details</div>
+
+        <div class="card">
+            <table>
+                <tr><td style="font-weight:600;color:var(--ink);width:140px;">Username</td><td id="profileUsername">—</td></tr>
+                <tr><td style="font-weight:600;color:var(--ink);">Email</td><td id="profileEmail">—</td></tr>
+                <tr><td style="font-weight:600;color:var(--ink);">Role</td><td id="profileRole">Catalog member</td></tr>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+let chatCount = 0;
+
+/* ===== TOAST ===== */
+function toast(message, type) {
+    type = type || 'info';
+    var container = document.getElementById('toastContainer');
+    var el = document.createElement('div');
+    el.className = 'toast toast-' + type;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(function() {
+        el.classList.add('leaving');
+        setTimeout(function() { el.remove(); }, 250);
+    }, 3500);
+}
+
+/* ===== MESSAGE HELPER (was missing — caused upload/create user to freeze) ===== */
+function showMsg(elementId, text, type) {
+    var el = document.getElementById(elementId);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'msg ' + type;
+}
+
+/* ===== NAVIGATION ===== */
+function showSection(id) {
+    document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+    document.querySelectorAll('.menu button').forEach(function(b) { b.classList.remove('active-btn'); });
+    document.getElementById(id).classList.add('active');
+    var btn = document.getElementById('btn-' + id);
+    if (btn) btn.classList.add('active-btn');
+
+    if (id === 'dashboard') loadDashboard();
+    if (id === 'upload') loadDocuments();
+    if (id === 'users') getUsers();
+    if (id === 'profile') loadProfile();
+}
+
+/* ===== DASHBOARD ===== */
+function loadDashboard() {
+    // Users
+    fetch(API + '/users')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var count = Array.isArray(data) ? data.length : (data.count || 0);
+            document.getElementById('stat-users').textContent = count;
+            document.getElementById('statusBackend').textContent = '● Online';
+            document.getElementById('statusDb').textContent = '● Connected';
+        })
+        .catch(function() {
+            document.getElementById('stat-users').textContent = '—';
+            document.getElementById('statusBackend').textContent = '● Offline';
+            document.getElementById('statusDb').textContent = '● Offline';
+        });
+
+    // Documents — API may return {count, documents: [...]} or just an array
+    fetch(API + '/documents')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var count = 0;
+            if (Array.isArray(data)) {
+                count = data.length;
+            } else if (data && typeof data === 'object') {
+                count = data.count || (data.documents ? data.documents.length : 0);
+            }
+            document.getElementById('stat-docs').textContent = count;
+        })
+        .catch(function() {
+            document.getElementById('stat-docs').textContent = '—';
+        });
+
+    document.getElementById('stat-chats').textContent = chatCount;
+}
+
+/* ===== SEARCH ===== */
+var searchTimeout;
+function liveSearch() {
+    clearTimeout(searchTimeout);
+    var query = document.getElementById('searchInput').value.trim();
+    var box = document.getElementById('searchResults');
+    if (!query) { box.innerHTML = ''; return; }
+
+    searchTimeout = setTimeout(function() {
+        fetch(API + '/search?q=' + encodeURIComponent(query))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var html = '';
+                var docs = data.documents || [];
+                var users = data.users || [];
+                if (docs.length) {
+                    html += '<div class="search-result-label">Documents</div>';
+                    docs.forEach(function(d) {
+                        var name = typeof d === 'string' ? d : (d.filename || d.name || 'Unknown');
+                        html += '<div class="search-result-item">📄 ' + name + '</div>';
+                    });
+                }
+                if (users.length) {
+                    html += '<div class="search-result-label">Users</div>';
+                    users.forEach(function(u) {
+                        html += '<div class="search-result-item">👤 ' + u.username + ' (' + u.email + ')</div>';
+                    });
+                }
+                if (!docs.length && !users.length) {
+                    html = '<div class="search-result-label">No results found</div>';
+                }
+                box.innerHTML = html;
+            })
+            .catch(function() {
+                box.innerHTML = '<div class="search-result-label">Search unavailable</div>';
+            });
+    }, 300);
+}
+
+/* ===== CHAT ===== */
+function addMessage(text, role) {
+    var box = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'message ' + role;
+    if (role === 'ai') {
+        div.innerHTML = '<div class="msg-label">🧠 AI Assistant</div>' + text.replace(/\n/g, '<br>');
+    } else {
+        div.textContent = text;
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
+function addTyping() {
+    var box = document.getElementById('chatMessages');
+    var div = document.createElement('div');
+    div.className = 'message typing';
+    div.id = 'typing';
+    div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+}
+
+function removeTyping() {
+    var t = document.getElementById('typing');
+    if (t) t.remove();
+}
+
+function sendMessage() {
+    var input = document.getElementById('chatInput');
+    var question = input.value.trim();
+    if (!question) return;
+
+    input.value = '';
+    addMessage(question, 'user');
+    addTyping();
+
+    var btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+
+    fetch(API + '/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question })
+    })
+    .then(function(r) {
+        if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || 'Request failed'); });
+        return r.json();
+    })
+    .then(function(data) {
+        removeTyping();
+        addMessage(data.answer, 'ai');
+        chatCount++;
+        document.getElementById('stat-chats').textContent = chatCount;
+    })
+    .catch(function(err) {
+        removeTyping();
+        addMessage('❌ Error: ' + err.message + '\n\nMake sure the backend is running at ' + API, 'ai');
+        toast('Chat error: ' + err.message, 'error');
+    })
+    .then(function() {
+        btn.disabled = false;
+        input.focus();
+    });
+}
+
+function quickAsk(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+function handleChatKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function clearChat() {
+    fetch(API + '/chat/history', { method: 'DELETE' })
+        .then(function() {
+            document.getElementById('chatMessages').innerHTML =
+                '<div class="message ai"><div class="msg-label">🧠 AI Assistant</div>Chat cleared. How can I help you?</div>';
+            chatCount = 0;
+            document.getElementById('stat-chats').textContent = 0;
+            toast('Chat cleared', 'info');
+        })
+        .catch(function() {
+            document.getElementById('chatMessages').innerHTML =
+                '<div class="message ai"><div class="msg-label">🧠 AI Assistant</div>Chat cleared locally.</div>';
+            chatCount = 0;
+            document.getElementById('stat-chats').textContent = 0;
+        });
+}
+
+/* ===== DOCUMENTS ===== */
+function uploadFile() {
+    var fileInput = document.getElementById('fileInput');
+    var file = fileInput.files[0];
+    var btn = document.getElementById('uploadBtn');
+
+    if (!file) {
+        showMsg('uploadMsg', '⚠️ Please select a file.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Uploading...';
+    showMsg('uploadMsg', 'Uploading and indexing...', 'info');
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    fetch(API + '/upload', { method: 'POST', body: formData })
+        .then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || 'Upload failed'); });
+            return r.json();
+        })
+        .then(function(data) {
+            showMsg('uploadMsg', '✅ ' + (data.message || 'File uploaded successfully!'), 'success');
+            toast('"' + file.name + '" uploaded', 'success');
+            fileInput.value = '';
+            loadDocuments();
+        })
+        .catch(function(err) {
+            showMsg('uploadMsg', '❌ ' + err.message, 'error');
+            toast('Upload failed: ' + err.message, 'error');
+        })
+        .then(function() {
+            btn.disabled = false;
+            btn.innerHTML = '📤 Upload File';
+        });
+}
+
+function loadDocuments() {
+    var tbody = document.getElementById('docsTable');
+    tbody.innerHTML = '<tr><td colspan="2" class="empty-cell">Loading...</td></tr>';
+
+    fetch(API + '/documents')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Handle both array and {count, documents} formats
+            var docs = [];
+            if (Array.isArray(data)) {
+                docs = data;
+            } else if (data && data.documents) {
+                docs = data.documents;
+            }
+
+            if (!docs.length) {
+                tbody.innerHTML = '<tr><td colspan="2" class="empty-cell">No documents yet — upload a PDF to get started.</td></tr>';
+                document.getElementById('stat-docs').textContent = 0;
+                return;
+            }
+
+            tbody.innerHTML = docs.map(function(d, i) {
+                // d can be a string (filename) or an object {id, filename, uploaded_at}
+                var name, id, date;
+                if (typeof d === 'string') {
+                    name = d;
+                    id = i;
+                    date = '—';
+                } else {
+                    name = d.filename || d.name || 'Unknown';
+                    id = d.id !== undefined ? d.id : i;
+                    date = d.uploaded_at ? new Date(d.uploaded_at).toLocaleDateString() : '—';
+                }
+                var safeName = name.replace(/'/g, "\\'");
+                return '<tr>' +
+                    '<td>' + name + '</td>' +
+                    '<td><button class="btn btn-danger btn-sm" onclick="deleteDocument(' + id + ', \'' + safeName + '\')">🗑️ Delete</button></td>' +
+                    '</tr>';
+            }).join('');
+
+            // Update stat
+            var count = Array.isArray(data) ? data.length : (data.count || docs.length);
+            document.getElementById('stat-docs').textContent = count;
+        })
+        .catch(function(err) {
+            tbody.innerHTML = '<tr><td colspan="2" class="empty-cell" style="color:#c23434;">❌ Failed to load documents — is the backend running?</td></tr>';
+            toast('Could not load documents', 'error');
+        });
+}
+
+function deleteDocument(id, filename) {
+    if (!confirm('Delete "' + filename + '"? This also removes it from AI search.')) return;
+
+    fetch(API + '/documents/' + id, { method: 'DELETE' })
+        .then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || 'Delete failed'); });
+            return r.json();
+        })
+        .then(function(data) {
+            toast('"' + filename + '" deleted', 'info');
+            loadDocuments();
+        })
+        .catch(function(err) {
+            toast('Delete failed: ' + err.message, 'error');
+        });
+}
+
+/* ===== USERS ===== */
+function createUser() {
+    var username = document.getElementById('username').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value.trim();
+    var btn = document.getElementById('createBtn');
+
+    if (!username || !email || !password) {
+        showMsg('createMsg', '⚠️ Fill in all fields.', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Creating...';
+
+    fetch(API + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, email: email, password: password })
+    })
+    .then(function(r) {
+        if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || 'Failed to create user'); });
+        return r.json();
+    })
+    .then(function(data) {
+        showMsg('createMsg', '✅ User "' + (data.username || username) + '" created!', 'success');
+        toast('User "' + username + '" created', 'success');
+        document.getElementById('username').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('password').value = '';
+        getUsers();
+    })
+    .catch(function(err) {
+        showMsg('createMsg', '❌ ' + err.message, 'error');
+        toast('Failed to create user: ' + err.message, 'error');
+    })
+    .then(function() {
+        btn.disabled = false;
+        btn.innerHTML = 'Add User';
+    });
+}
+
+function getUsers() {
+    var tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">Loading...</td></tr>';
+
+    fetch(API + '/users')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-cell">No users yet</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(function(u) {
+                return '<tr>' +
+                    '<td>' + u.id + '</td>' +
+                    '<td style="font-weight:600;color:var(--ink);">' + u.username + '</td>' +
+                    '<td>' + u.email + '</td>' +
+                    '<td><span class="badge badge-green">Active</span></td>' +
+                    '<td><button class="btn btn-danger btn-sm" onclick="deleteUser(' + u.id + ', \'' + u.username.replace(/'/g, "\\'") + '\')">🗑️</button></td>' +
+                    '</tr>';
+            }).join('');
+            document.getElementById('stat-users').textContent = data.length;
+        })
+        .catch(function(err) {
+            tbody.innerHTML = '<tr><td colspan="5" class="empty-cell" style="color:#c23434;">❌ Failed to load users — is the backend running?</td></tr>';
+        });
+}
+
+function deleteUser(id, username) {
+    if (!confirm('Delete user "' + username + '"? This cannot be undone.')) return;
+
+    fetch(API + '/users/' + id, { method: 'DELETE' })
+        .then(function(r) {
+            if (!r.ok) return r.json().then(function(d) { throw new Error(d.detail || 'Delete failed'); });
+            return r.json();
+        })
+        .then(function() {
+            toast('User "' + username + '" deleted', 'info');
+            getUsers();
+        })
+        .catch(function(err) {
+            toast('Delete failed: ' + err.message, 'error');
+        });
+}
+
+/* ===== PROFILE ===== */
+function loadProfile() {
+    // Try to get current user info from the users list (basic approach)
+    fetch(API + '/users')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            // Just show first user as a demo — real apps would use /me endpoint
+            if (data.length > 0) {
+                document.getElementById('profileUsername').textContent = data[0].username;
+                document.getElementById('profileEmail').textContent = data[0].email;
+            }
+        })
+        .catch(function() {
+            document.getElementById('profileUsername').textContent = '—';
+            document.getElementById('profileEmail').textContent = '—';
+        });
+}
+
+/* ===== KEYBOARD SHORTCUTS ===== */
+document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === '1') showSection('dashboard');
+    if (e.key === '2') showSection('chat');
+    if (e.key === '3') showSection('upload');
+    if (e.key === '4') showSection('users');
+    if (e.key === '5') showSection('profile');
+});
+
+/* ===== INIT ===== */
+loadDashboard();
+loadDocuments();
+getUsers();
+</script>
+</body>
+</html>
