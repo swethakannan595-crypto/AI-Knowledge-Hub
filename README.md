@@ -4,12 +4,12 @@ Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, an
 
 
 <img width="947" height="465" alt="image" src="https://github.com/user-attachments/assets/fb71f250-c84f-4755-80e7-173c591b9601" />
-<img width="939" height="463" alt="image" src="https://github.com/user-attachments/assets/770f6d1e-f1b9-4c06-be01-3576753beb70" />
-<img width="957" height="469" alt="image" src="https://github.com/user-attachments/assets/804998f8-2922-487e-8aa0-5d60c2e2aa2c" />
-<img width="948" height="471" alt="image" src="https://github.com/user-attachments/assets/3d6c1715-cf00-49a3-b6a1-d342b0f44dbe" />
-<img width="952" height="469" alt="image" src="https://github.com/user-attachments/assets/f771940f-9543-4b42-85d5-7c48d5b06344" />
-<img width="706" height="385" alt="image" src="https://github.com/user-attachments/assets/b0479928-e842-4e0e-a5ec-754cc290aecd" />
 
+<img width="939" height="463" alt="image" src="https://github.com/user-attachments/assets/770f6d1e-f1b9-4c06-be01-3576753beb70" />
+
+<img width="957" height="469" alt="image" src="https://github.com/user-attachments/assets/804998f8-2922-487e-8aa0-5d60c2e2aa2c" />
+
+<img width="948" height="471" alt="image" src="https://github.com/user-attachments/assets/3d6c1715-cf00-49a3-b6a1-d342b0f44dbe" />
 
 </div>
 
