@@ -92,8 +92,8 @@ LayerTechnologyBackend FrameworkFastAPI (Python 3.11+)DatabasePostgreSQL + SQLAl
                 ┌────────────┼────────────┐
                 ▼                         ▼
        ┌─────────────────┐      ┌──────────────────┐
-       │    ChromaDB      │      │   Groq API        │
-       │  (Vector Store)  │      │  (Llama 3.1 LLM)  │
+       │    ChromaDB     │      │   Groq API       │
+       │  (Vector Store) │      │  (Llama 3.1 LLM) │
        └─────────────────┘      └──────────────────┘
 
 RAG Flow: PDF upload → text extraction → chunking → embedding → ChromaDB storage → on query, semantic search retrieves relevant chunks → chunks + question sent to Llama 3.1 → grounded answer returned.
