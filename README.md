@@ -3,10 +3,8 @@
 Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, and Llama 3.1
 
 
-<img width="945" height="433" alt="image" src="https://github.com/user-attachments/assets/84f766b8-c4a1-415e-a07b-e85028056df7" />
-<img width="930" height="436" alt="image" src="https://github.com/user-attachments/assets/8db822c7-8549-48be-9cfd-d54f66df9f66" />
-<img width="934" height="432" alt="image" src="https://github.com/user-attachments/assets/5d433507-f313-4103-9574-18d816ee975e" />
-<img width="931" height="432" alt="image" src="https://github.com/user-attachments/assets/cdf80dc4-9dbc-48d5-a9b4-6c300eb976a8" />
+<img width="1889" height="865" alt="image" src="https://github.com/user-attachments/assets/41696166-ab3e-452a-b8cf-e259578c9a1c" />
+
 
 
 </div>
@@ -39,6 +37,10 @@ Quick-action prompts: Summarize Documents, Extract Key Topics, Generate Report, 
 Visual indicator showing when an answer was sourced from your documents
 
 
+<img width="931" height="432" alt="image" src="https://github.com/user-attachments/assets/cdf80dc4-9dbc-48d5-a9b4-6c300eb976a8" />
+
+
+
 📄 Smart Document Indexing
 
 
@@ -49,12 +51,20 @@ Vector storage and semantic similarity search via ChromaDB
 Live document index with status tracking
 
 
+<img width="1860" height="872" alt="image" src="https://github.com/user-attachments/assets/529611b1-b68c-4c7c-8a33-2c73347e74fe" />
+
+
+
 👥 User Management
 
 
 User registration and role-aware access
 Admin-visible user directory
 Multi-user support over local network (--host 0.0.0.0)
+
+
+<img width="1868" height="864" alt="image" src="https://github.com/user-attachments/assets/94a6f6fd-94cc-4080-afd0-b3fb12e1bcd2" />
+
 
 
 📊 Dashboard & Analytics
@@ -71,6 +81,9 @@ Quick-action shortcuts to core workflows
 Custom-designed single-page interface (no framework bloat — vanilla HTML/CSS/JS)
 Responsive layout, accessible components, smooth state transitions
 Built entirely on top of a documented REST API (testable via /docs)
+
+
+<img width="948" height="437" alt="image" src="https://github.com/user-attachments/assets/c08b4de2-02ae-4b8a-9783-cc9ad3debdbb" />
 
 
 
