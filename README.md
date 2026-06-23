@@ -3,13 +3,11 @@
 Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, and Llama 3.1
 
 
-<img width="947" height="465" alt="image" src="https://github.com/user-attachments/assets/fb71f250-c84f-4755-80e7-173c591b9601" />
+<img width="945" height="433" alt="image" src="https://github.com/user-attachments/assets/84f766b8-c4a1-415e-a07b-e85028056df7" />
+<img width="930" height="436" alt="image" src="https://github.com/user-attachments/assets/8db822c7-8549-48be-9cfd-d54f66df9f66" />
+<img width="934" height="432" alt="image" src="https://github.com/user-attachments/assets/5d433507-f313-4103-9574-18d816ee975e" />
+<img width="931" height="432" alt="image" src="https://github.com/user-attachments/assets/cdf80dc4-9dbc-48d5-a9b4-6c300eb976a8" />
 
-<img width="939" height="463" alt="image" src="https://github.com/user-attachments/assets/770f6d1e-f1b9-4c06-be01-3576753beb70" />
-
-<img width="957" height="469" alt="image" src="https://github.com/user-attachments/assets/804998f8-2922-487e-8aa0-5d60c2e2aa2c" />
-
-<img width="948" height="471" alt="image" src="https://github.com/user-attachments/assets/3d6c1715-cf00-49a3-b6a1-d342b0f44dbe" />
 
 </div>
 
