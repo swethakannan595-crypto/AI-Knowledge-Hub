@@ -11,7 +11,11 @@ Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, an
 
 📖 Overview
 
-Index is a full-stack AI Knowledge Management System that lets users upload PDF documents and have natural-language conversations with their content. Built with FastAPI and powered by Retrieval-Augmented Generation (RAG), it combines a vector database, semantic search, and a fast open-source LLM to deliver accurate, context-grounded answers — not hallucinations.
+While exploring AI-powered learning tools, I noticed a common challenge: many document assistants support only limited file formats, impose upload restrictions, or require users to switch between multiple tools to work with different types of study material.
+
+I wanted to build a solution that makes learning simpler, more intuitive, and grounded in the user's own knowledge.
+
+Index – AI Knowledge Hub is a full-stack AI Knowledge Management System that enables users to upload PDF documents and have natural-language conversations with their content. Built on a Retrieval-Augmented Generation (RAG) architecture, it combines semantic search, vector embeddings, and a high-speed LLM to generate accurate, context-aware responses based on the uploaded documents—rather than relying solely on the model's general knowledge.
 
 This project demonstrates production-style backend engineering: authentication, database design, vector search, LLM orchestration, and a clean API surface — the kind of system used in enterprise knowledge bases, internal copilots, and document-intelligence tools.
 
