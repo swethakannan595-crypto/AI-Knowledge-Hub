@@ -1,16 +1,11 @@
-from app.db.database import engine
+﻿from app.db.database import engine
+from app.models.document import Document
 from sqlalchemy import text
 
 with engine.connect() as conn:
-    try:
-        conn.execute(text("ALTER TABLE documents ADD COLUMN chroma_ids TEXT DEFAULT ''"))
-        conn.commit()
-        print("Column added successfully!")
-    except Exception as e:
-        print(f"Add column error (may already exist): {e}")
+    conn.execute(text("DROP TABLE IF EXISTS documents CASCADE"))
+    conn.commit()
+    print("Old documents table dropped.")
 
-with engine.connect() as conn:
-    result = conn.execute(text("SELECT column_name FROM information_schema.columns WHERE table_name='documents'"))
-    print("\nCurrent columns in 'documents' table:")
-    for row in result:
-        print("-", row[0])
+Document.__table__.create(bind=engine)
+print("New documents table created.")
