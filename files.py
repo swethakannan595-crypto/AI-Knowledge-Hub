@@ -1,77 +1,65 @@
-from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
-import shutil
 import os
-
-from app.db.database import get_db
-from app.models.document import Document
-from app.services.rag import add_document_to_vectorstore, delete_document_from_vectorstore
+import shutil
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
+from app.services.rag import add_document, get_all_documents, delete_document
 
 router = APIRouter(tags=["files"])
 UPLOAD_DIR = "app/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
-def process_document(file_path: str, filename: str, doc_id: int):
-    """Runs in the background after the upload response is already sent."""
-    from app.db.database import SessionLocal
-    db = SessionLocal()
+def process_document(file_path: str, filename: str):
     try:
-        chunk_ids = add_document_to_vectorstore(file_path, filename=filename)
-        doc = db.query(Document).filter(Document.id == doc_id).first()
-        if doc:
-            doc.chroma_ids = ",".join(chunk_ids) if chunk_ids else ""
-            db.commit()
+        add_document(file_path, filename)
+        print(f"Successfully indexed: {filename}")
     except Exception as e:
-        print(f"Background processing error: {e}")
-    finally:
-        db.close()
-
+        print(f"Error processing {filename}: {e}")
 
 @router.post("/upload")
 async def upload_file(
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks = BackgroundTasks()
 ):
+    # Only allow PDF
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only PDF files are supported."
+        )
+
     file_path = os.path.join(UPLOAD_DIR, file.filename)
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    doc = Document(filename=file.filename, file_path=file_path, chroma_ids="")
-    db.add(doc)
-    db.commit()
-    db.refresh(doc)
+    background_tasks.add_task(process_document, file_path, file.filename)
 
-    background_tasks.add_task(process_document, file_path, file.filename, doc.id)
-
-    return {"message": f"'{file.filename}' uploaded — processing in background", "id": doc.id}
-
+    return {
+        "message": f"'{file.filename}' uploaded and indexing started!",
+        "filename": file.filename
+    }
 
 @router.get("/documents")
-def list_documents(db: Session = Depends(get_db)):
-    docs = db.query(Document).order_by(Document.uploaded_at.desc()).all()
-    return [
-        {"id": d.id, "filename": d.filename, "uploaded_at": d.uploaded_at.isoformat() if d.uploaded_at else None}
-        for d in docs
-    ]
+async def list_documents():
+    try:
+        indexed = get_all_documents()
+        all_files = []
+        if os.path.exists(UPLOAD_DIR):
+            all_files = [f for f in os.listdir(UPLOAD_DIR) if f.lower().endswith(".pdf")]
+        all_docs = list(set(indexed + all_files))
+        result = []
+        for i, filename in enumerate(all_docs):
+            result.append({
+                "id": i,
+                "filename": filename,
+                "indexed": filename in indexed
+            })
+        return {"documents": result, "count": len(result)}
+    except Exception as e:
+        return {"documents": [], "count": 0}
 
-
-@router.delete("/documents/{doc_id}")
-def delete_document(doc_id: int, db: Session = Depends(get_db)):
-    doc = db.query(Document).filter(Document.id == doc_id).first()
-    if not doc:
-        raise HTTPException(status_code=404, detail="Document not found")
-
-    if doc.chroma_ids:
-        try:
-            delete_document_from_vectorstore(doc.chroma_ids.split(","))
-        except Exception:
-            pass
-
-    if doc.file_path and os.path.exists(doc.file_path):
-        os.remove(doc.file_path)
-
-    db.delete(doc)
-    db.commit()
-    return {"message": f"'{doc.filename}' deleted successfully"}
+@router.delete("/documents/{filename:path}")
+async def remove_document(filename: str):
+    delete_document(filename)
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    return {"message": f"'{filename}' deleted successfully"}
