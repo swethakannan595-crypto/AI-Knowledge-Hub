@@ -80,7 +80,6 @@ This project demonstrates production-style backend engineering: authentication, 
 - Built entirely on top of a documented REST API (testable via `/docs`)
   
 
-<img width="948" height="437" alt="UI screenshot" src="https://github.com/user-attachments/assets/c08b4de2-02ae-4b8a-9783-cc9ad3debdbb" />
 
 
 ---
@@ -106,6 +105,7 @@ This project demonstrates production-style backend engineering: authentication, 
 
 
 <img width="318" height="186" alt="Architecture diagram" src="https://github.com/user-attachments/assets/bce66235-c785-4818-9786-a98de5a0cef8" />
+
 
 
 **RAG Flow:** PDF upload → text extraction → chunking → embedding → ChromaDB storage → on query, semantic search retrieves relevant chunks → chunks + question sent to Llama 3.1 → grounded answer returned.
@@ -164,6 +164,7 @@ Visit `http://127.0.0.1:8000` to access the app, or `http://127.0.0.1:8000/docs`
 ---
 
 ## 📁 Project Structure
+
 
 
 <img width="307" height="260" alt="Project structure screenshot" src="https://github.com/user-attachments/assets/3c8e7e8a-efa0-4b00-8d54-801f8037b060" />
