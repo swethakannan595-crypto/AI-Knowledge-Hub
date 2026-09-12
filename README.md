@@ -2,13 +2,11 @@
 
 # 🧠 Index — AI-Powered Knowledge Management System
 
+</div>
+
 Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, and Llama 3.1
 
-
-<img width="1889" height="865" alt="Dashboard screenshot" src="https://github.com/user-attachments/assets/41696166-ab3e-452a-b8cf-e259578c9a1c" />
-
-
-</div>
+🔗 Live Demo: https://ai-knowledge-hub-m0k2.onrender.com
 
 ---
 
