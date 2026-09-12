@@ -8,6 +8,11 @@ Chat with your documents using Retrieval-Augmented Generation (RAG), FastAPI, an
 
 🔗 Live Demo: https://ai-knowledge-hub-m0k2.onrender.com
 
+Username: testuser
+Password: Test1234
+
+Use this username and password 
+
 ---
 
 ## 📖 Overview
