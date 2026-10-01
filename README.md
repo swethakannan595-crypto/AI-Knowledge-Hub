@@ -230,7 +230,7 @@ Never commit `.env` files or API keys. Store secrets in your hosting provider's 
 
 **Architecture**
 
-<img width="318" height="186" alt="Architecture diagram" src="https://github.com/user-attachments/assets/bce66235-c785-4819-9786-a98de5a0cef8" />
+<img width="1868" height="846" alt="Architecture diagram" src="https://github.com/user-attachments/assets/bce66235-c785-4819-9786-a98de5a0cef8" />
 
 ## Roadmap
 
