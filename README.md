@@ -228,9 +228,6 @@ Never commit `.env` files or API keys. Store secrets in your hosting provider's 
 
 <img width="1868" height="864" alt="User management" src="https://github.com/user-attachments/assets/94a6f6fd-94cc-4080-afd0-b3fb12e1bcd2" />
 
-**Architecture**
-
-<img width="1868" height="846" alt="Architecture diagram" src="https://github.com/user-attachments/assets/bce66235-c785-4819-9786-a98de5a0cef8" />
 
 ## Roadmap
 
