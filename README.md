@@ -5,9 +5,10 @@
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?logo=postgresql&logoColor=white)
 ![ChromaDB](https://img.shields.io/badge/Vector%20DB-ChromaDB-FF6B35)
 ![Groq](https://img.shields.io/badge/LLM-Groq%20%2B%20Llama%203.1-F55036)
+![Render](https://img.shields.io/badge/Hosting-Render-46E3B7?logo=render&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-An AI-powered knowledge management system that lets users upload PDF documents and chat with their content. It applies Retrieval-Augmented Generation (RAG) so every answer is grounded in the retrieved document text, instead of relying on the language model's general knowledge.
+An AI-powered knowledge management system that lets users upload PDF documents and chat with their content. It applies Retrieval-Augmented Generation (RAG) so every answer is grounded in text retrieved from the user's own documents, instead of relying on the language model's general knowledge.
 
 **Live demo:** https://ai-knowledge-hub-m0k2.onrender.com
 
@@ -18,6 +19,8 @@ An AI-powered knowledge management system that lets users upload PDF documents a
 
 The demo account is provided for demonstration purposes only.
 
+---
+
 ## Overview
 
 Students and researchers often work with several long PDFs and spend a lot of time searching through them for specific information. Index lets them upload their study materials once and ask questions in plain language, getting answers drawn directly from their own documents.
@@ -27,7 +30,7 @@ Document search, summarization and question answering live in one workspace, so 
 ## Key Features
 
 - **Document-grounded answers.** Responses are generated from content retrieved from the user's uploaded documents.
-- **Smart document indexing.** PDFs are extracted, chunked, embedded and stored in a vector database automatically after upload.
+- **Automatic indexing.** PDFs are extracted, chunked, embedded and stored in a vector database right after upload.
 - **Semantic search.** Relevant passages are found by meaning using vector similarity, not simple keyword matching.
 - **Conversation history.** Chats keep context across questions and can be retrieved or cleared.
 - **Quick actions.** One-click shortcuts for common document tasks (see below).
@@ -47,6 +50,24 @@ Document search, summarization and question answering live in one workspace, so 
 
 ## How It Works
 
+```mermaid
+flowchart LR
+    subgraph Indexing
+        A[PDF upload] --> B[Extract text<br/>pypdf]
+        B --> C[Split into chunks<br/>LangChain Text Splitters]
+        C --> D[Embeddings<br/>all-MiniLM-L6-v2]
+        D --> E[(ChromaDB)]
+    end
+    subgraph Answering
+        Q[User question] --> F[Embed question]
+        F --> G[Retrieve top matching chunks]
+        E --> G
+        G --> H[Build prompt<br/>context + question]
+        H --> I[Llama 3.1 via Groq]
+        I --> J[Grounded answer]
+    end
+```
+
 1. The user uploads a PDF and the text is extracted with `pypdf`.
 2. The text is split into smaller chunks with LangChain Text Splitters.
 3. Sentence Transformers (`all-MiniLM-L6-v2`) convert each chunk into a vector, and ChromaDB stores the vectors.
@@ -56,13 +77,12 @@ Document search, summarization and question answering live in one workspace, so 
 
 ## Architecture
 
-```text
-GitHub ──► Render ──► FastAPI Backend
-                        │
-          ┌─────────────┼─────────────┐
-          ▼             ▼             ▼
-     PostgreSQL     ChromaDB       Groq API
-   (users, chat)   (embeddings)   (Llama 3.1)
+```mermaid
+flowchart TB
+    U[User browser<br/>HTML + CSS + JavaScript] -->|HTTPS| API[FastAPI backend<br/>Render]
+    API --> PG[(PostgreSQL<br/>users, chat history)]
+    API --> CH[(ChromaDB<br/>document embeddings)]
+    API --> LLM[Groq API<br/>Llama 3.1 8B Instant]
 ```
 
 Authentication, persistence, retrieval and LLM inference are separate responsibilities, which keeps each part easy to maintain and replace.
@@ -172,7 +192,7 @@ The backend reads its settings from `.env` in the project root.
 | `GROQ_API_KEY` | Groq API key | `your_groq_api_key_here` |
 | `SECRET_KEY` | Secret used to sign JWTs | `your_jwt_secret_key_here` |
 
-Never commit `.env` files or API keys. Store secrets in your hosting provider's environment settings.
+> Never commit `.env` files or API keys. Store secrets in your hosting provider's environment settings.
 
 ## API Reference
 
@@ -228,18 +248,22 @@ Never commit `.env` files or API keys. Store secrets in your hosting provider's 
 
 <img width="1868" height="864" alt="User management" src="https://github.com/user-attachments/assets/94a6f6fd-94cc-4080-afd0-b3fb12e1bcd2" />
 
-
 ## Roadmap
 
-- Support for additional document formats
+**Documents**
+- Support for additional formats
+- OCR for scanned documents
+- In-browser PDF preview
 - Document deletion from the vector store
 - Full-text search across documents
+
+**Accounts and chat**
 - User profile management
 - Advanced admin dashboard
 - Persistent chat history per user
-- In-browser PDF preview
+
+**Platform**
 - Redis caching
-- OCR for scanned documents
 - Docker Compose setup
 - CI/CD pipeline
 - Additional cloud deployment options
@@ -250,7 +274,7 @@ Built as a hands-on exploration of production-style RAG systems, using FastAPI, 
 
 ## Author
 
-Swetha Kannan
+**Swetha Kannan**
 B.Sc. Information Technology
 [GitHub](https://github.com/swethakannan595-crypto)
 
